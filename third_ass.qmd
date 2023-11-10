@@ -42,6 +42,14 @@ From \<<https://msb105.netlify.app/wrangle-data/factors/factors#/factors-in-tidy
 ## SSB
 
 ```{r}
+#Get more info about table
+ApiData(
+"http://data.ssb.no/api/v0/en/table/03321",
+returnApiQuery = TRUE
+) 
+```
+
+```{r}
 metadata_03321 <- ApiData12(
   "https://data.ssb.no/api/v0/no/table/03321/",
   returnMetaFrames = TRUE
@@ -50,9 +58,9 @@ metadata_03321 <- ApiData12(
 
 ```{r}
 #Vi laster inn en API med alle som har arbeidssted Haugaland
-#| cache: true
 pend_00_22_ssb_arbHland <- ApiData12(
   "https://data.ssb.no/api/v0/no/table/03321/",
+  Bokommuen = list("*"),
   ArbstedKomm = c("1106", "1135", "1145", "1146", "1149", "1154", "1159", "1160", "4611", "4612"),
   Tid = c(paste(
     as.character(2000:2022),
@@ -67,6 +75,7 @@ pend_00_22_ssb_arbHland <- ApiData12(
 #| cache: true
 pend_00_22_ssb_boHland <- ApiData12(
   "https://data.ssb.no/api/v0/no/table/03321/",
+  ArbstedKomm = list("*"),
   Bokommuen = c("1106", "1135", "1145", "1146", "1149", "1154", "1159", "1160", "4611", "4612"),
   Tid = c(paste(
     as.character(2000:2022),
