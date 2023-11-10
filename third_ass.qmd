@@ -128,6 +128,40 @@ pend_00_22_ssb_boHland <- pend_00_22_ssb_boHland %>%
   select(aar, bo_kom, arb_kom, pendlere)
 ```
 
+```{r}
+pend_00_22_ssb_arbHland <- pend_00_22_ssb_arbHland |> 
+  mutate(
+    arb_kom_fac = fct(arb_kom),
+    bo_kom_fac = fct(bo_kom))
+```
+
+```{r}
+pend_00_22_ssb_boHland <- pend_00_22_ssb_boHland |> 
+  mutate(
+    arb_kom_fac = fct(arb_kom),
+    bo_kom_fac = fct(bo_kom))
+```
+
+Vi slår sammen kategoriene til Haugesund, Sauda, Bokn, Tysvær, Karmøy, Vinafjord og Ølen.
+
+```{r}
+x <- pend_00_22_ssb_arbHland |> 
+  mutate(
+    bo_kom = fct_collapse(
+      .f = bo_kom_fac,
+      "Haugesund" = "Haugesund",
+      "Karmoy" = "Karmøy",
+      "Bokn" = "Bokn",
+      "Tysvaer" = "Tysvær",
+      "Sveio" = "Sveio",
+      "Sauda" = "Sauda",
+      "Etne" = "Etne",
+      "Vindafjord" = c("Ølen", "Vindafjord"),
+      other_level = "Andre"
+    )
+  )
+```
+
 ## Tidy
 
 ## Spørsmål
