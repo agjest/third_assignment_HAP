@@ -1,0 +1,130 @@
+---
+title: "pendling"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| message: false
+library(tidyverse)
+library(tidyselect)
+library(lubridate)
+library(PxWebApiData)
+library(flextable)
+```
+
+## Intro
+
+-   Henter API fra SSB
+
+-   Lager pivots
+
+-   Lager pendlermatrise / origin-destination
+
+-   Bruk char vector, gjør om til faktor variabel, slå i sammen mangen av kategorier til breiere kategorier
+
+-   Viktig teknikk:
+
+-   Important technique:
+
+-   Make factor of a variable.
+
+-   Collapse the levels into groups we are interested in and throw the rest into an "Other" category.
+
+-   Alternative to case_when()
+
+```         
+From \<<https://msb105.netlify.app/wrangle-data/factors/factors#/factors-in-tidyverse-forcats>\>
+```
+
+## SSB
+
+```{r}
+metadata_03321 <- ApiData12(
+  "https://data.ssb.no/api/v0/no/table/03321/",
+  returnMetaFrames = TRUE
+  )
+```
+
+```{r}
+#Vi laster inn en API med alle som har arbeidssted Haugaland
+#| cache: true
+pend_00_22_ssb_arbHland <- ApiData12(
+  "https://data.ssb.no/api/v0/no/table/03321/",
+  ArbstedKomm = c("1106", "1135", "1145", "1146", "1149", "1154", "1159", "1160", "4611", "4612"),
+  Tid = c(paste(
+    as.character(2000:2022),
+    #sep betyr at det ikke skal være mellomrom mellom elementene
+    sep = "")
+    )
+  )
+```
+
+```{r}
+#Vi laster inn en API med alle som har bosted Haugaland
+#| cache: true
+pend_00_22_ssb_boHland <- ApiData12(
+  "https://data.ssb.no/api/v0/no/table/03321/",
+  Bokommuen = c("1106", "1135", "1145", "1146", "1149", "1154", "1159", "1160", "4611", "4612"),
+  Tid = c(paste(
+    as.character(2000:2022),
+    sep = "")
+    )
+  )
+```
+
+```{r}
+names(pend_00_22_ssb_arbHland)
+```
+
+```{r}
+# Vi gir variablene nytt navn
+names(pend_00_22_ssb_arbHland) <- c(
+  "arb_kom",
+  "bo_kom",
+  "statistikkvariabel",
+  "aar",
+  "arb_komnr",
+  "bo_komnr",
+  "ContentsCode",
+  "Tid",
+  "pendlere"
+)
+```
+
+```{r}
+# Vi gir variablene nytt navn
+names(pend_00_22_ssb_boHland) <- c(
+  "arb_kom",
+  "bo_kom",
+  "statistikkvariabel",
+  "aar",
+  "arb_komnr",
+  "bo_komnr",
+  "ContentsCode",
+  "Tid",
+  "pendlere"
+)
+```
+
+```{r}
+pend_00_22_ssb_arbHland <- pend_00_22_ssb_arbHland %>% 
+  select(aar, arb_kom, bo_kom, pendlere)
+```
+
+```{r}
+pend_00_22_ssb_boHland <- pend_00_22_ssb_boHland %>% 
+  select(aar, bo_kom, arb_kom, pendlere)
+```
+
+## Tidy
+
+## Spørsmål
+
+## Oppgave
+
+## Konklusjon
+
+## Referanser
