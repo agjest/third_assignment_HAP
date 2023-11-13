@@ -1,0 +1,5 @@
+.First <- function() {
+
+Sys.setlocale('LC_ALL', 'nb-NO.utf-8')
+
+}
