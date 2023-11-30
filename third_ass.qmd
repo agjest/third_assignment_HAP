@@ -167,7 +167,6 @@ pend_00_22_ssb_arbHland |>
 ```{r}
 #collapset arbeidskommune
 pend_00_22_ssb_boHland |> 
-  filter(pendlere > 0) |>
   mutate(
     arb_kom = fct_collapse(
       .f = arb_kom_fac,
@@ -186,29 +185,34 @@ pend_00_22_ssb_boHland |>
 
 ```{r}
 #guperer på aar, arb_kom og bo_kom
-x <- pend_00_22_ssb_arbHland |>
-  filter(pendlere > 0)
+pend_00_22_ssb_arbHland <- pend_00_22_ssb_arbHland %$%
+  filter(pend_00_22_ssb_arbHland, pendlere > 0) |> 
   group_by(aar, arb_kom, bo_kom) |>
   summarise(pendlere = sum(pendlere),
     .groups = "drop")
 ```
 
 ```{r}
-x |>
+pend_00_22_ssb_arbHland |>
   head(5)
 ```
 
 ```{r}
 #gruppert med aar, arb_kom og bo_kom
-y <- pend_00_22_ssb_boHland |>
-  group_by(aar, arb_kom, bo_kom)|>
+pend_00_22_ssb_boHland <- pend_00_22_ssb_boHland %$%
+  filter(pend_00_22_ssb_boHland, pendlere > 0) |> 
+  group_by(aar, arb_kom, bo_kom) |>
   summarise(pendlere = sum(pendlere),
     .groups = "drop")
 ```
 
 ```{r}
-y |>
+pend_00_22_ssb_boHland |>
   head(5)
+```
+
+```{r}
+dim(pend_00_22_ssb_arbHland)
 ```
 
 ## Tidy
