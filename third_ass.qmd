@@ -167,6 +167,7 @@ pend_00_22_ssb_arbHland |>
 ```{r}
 #collapset arbeidskommune
 pend_00_22_ssb_boHland |> 
+  filter(pendlere > 0) |>
   mutate(
     arb_kom = fct_collapse(
       .f = arb_kom_fac,
@@ -185,8 +186,8 @@ pend_00_22_ssb_boHland |>
 
 ```{r}
 #guperer på aar, arb_kom og bo_kom
-x <- pend_00_22_ssb_arbHland %$%
-  filter_if(pend_00_22_ssb_arbHland, pendlere > 0)) |>
+x <- pend_00_22_ssb_arbHland |>
+  filter(pendlere > 0)
   group_by(aar, arb_kom, bo_kom) |>
   summarise(pendlere = sum(pendlere),
     .groups = "drop")
