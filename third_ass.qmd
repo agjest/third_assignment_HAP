@@ -217,8 +217,8 @@ dim(pend_00_22_ssb_arbHland)
 
 ```{r}
 # Nå skal vi joine begge listene
-x <- pend_00_22_ssb_boHland |>  
-  full_join(pend_00_22_ssb_arbHland,
+x <- pend_00_22_ssb_arbHland |>  
+  full_join(pend_00_22_ssb_boHland,
             by = join_by(aar, bo_kom, arb_kom, pendlere)) |>
   ungroup()
 ```
