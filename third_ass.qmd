@@ -217,18 +217,27 @@ dim(pend_00_22_ssb_arbHland)
 
 ```{r}
 # Nå skal vi joine begge listene
-x <- pend_00_22_ssb_arbHland |>  
+pmat_long <- pend_00_22_ssb_arbHland |>  
   full_join(pend_00_22_ssb_boHland,
             by = join_by(aar, bo_kom, arb_kom, pendlere)) |>
   ungroup()
 ```
 
 ```{r}
-x |> head(5)
+pmat_long |> head(5)
 ```
 
 ```{r}
-dim(x)
+dim(pmat_long)
+```
+
+```{r}
+# vi skal nå finne andelen av de som jobber i andre kommuner
+x <- pmat_long |>
+  group_by(aar, bo_kom) |>
+  mutate(
+    bo_percent = (round())
+  )
 ```
 
 ## Tidy
