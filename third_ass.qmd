@@ -331,14 +331,19 @@ p2000bo |>
 ```
 
 ```{r}
+# Nå skal vi endre rekkefølge i kommune og kolonner
+ordKom2 <- c("arb_kom", "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vindafjord", "Sauda", "Etne", "Andre")
+```
+
+```{r}
 # pendlermatrise år 2000 for de som arbeider i kommunen 
 p2000arb <- pmat_long |>
   filter(aar == 2000) |>
   select(bo_kom, arb_kom, pendlere) |>
   pivot_wider(names_from = bo_kom, values_from = pendlere) |>
-  mutate(arb_kom = factor(arb_kom, levels = ordKom)) |>
+  mutate(arb_kom = factor(arb_kom, levels = ordKom2)) |>
   arrange(arb_kom) |>
-  select("arb_kom", all_of(ordKom)) |>
+  select("arb_kom", all_of(ordKom2)) |>
   rename("Arb kom.\\ Bo kom." = arb_kom)
 ```
 
@@ -395,9 +400,9 @@ p2012arb <- pmat_long |>
   filter(aar == 2012) |>
   select(bo_kom, arb_kom, pendlere) |>
   pivot_wider(names_from = bo_kom, values_from = pendlere) |>
-  mutate(arb_kom = factor(arb_kom, levels = ordKom)) |>
+  mutate(arb_kom = factor(arb_kom, levels = ordKom2)) |>
   arrange(arb_kom) |>
-  select("arb_kom", all_of(ordKom)) |>
+  select("arb_kom", all_of(ordKom2)) |>
   rename("Arb kom.\\ Bo kom." = arb_kom)
 ```
 
@@ -454,9 +459,9 @@ p2022arb <- pmat_long |>
   filter(aar == 2022) |>
   select(bo_kom, arb_kom, pendlere) |>
   pivot_wider(names_from = bo_kom, values_from = pendlere) |>
-  mutate(arb_kom = factor(arb_kom, levels = ordKom)) |>
+  mutate(arb_kom = factor(arb_kom, levels = ordKom2)) |>
   arrange(arb_kom) |>
-  select("arb_kom", all_of(ordKom)) |>
+  select("arb_kom", all_of(ordKom2)) |>
   rename("Arb kom.\\ Bo kom." = arb_kom)
 ```
 
@@ -464,7 +469,7 @@ p2022arb <- pmat_long |>
 # her lager vi en finere matrise
 #| label: tbl-p2022
 #| tbl-cap: "Pendlematrise for Haugalandet år 2022."
-p2022bo |> 
+p2022arb |> 
   flextable() |> 
   # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
   fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
