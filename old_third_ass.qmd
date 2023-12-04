@@ -62,9 +62,7 @@ metadata_03321 <- ApiData12(
 pend_00_22_ssb_arbHland <- ApiData12(
   "https://data.ssb.no/api/v0/no/table/03321/",
   Bokommuen = list("*"),
-  # ag: Vi må ha med gamle Sveio og Etne  1211, 1216
-  ArbstedKomm = c("1106", "1135", "1145", "1146", "1149", "1154",
-                  "1159", "1160", "4611", "4612", "1211", "1216"),
+  ArbstedKomm = c("1106", "1135", "1145", "1146", "1149", "1154", "1159", "1160", "4611", "4612"),
   Tid = c(paste(
     as.character(2000:2022),
     #sep betyr at det ikke skal være mellomrom mellom elementene
@@ -79,9 +77,7 @@ pend_00_22_ssb_arbHland <- ApiData12(
 pend_00_22_ssb_boHland <- ApiData12(
   "https://data.ssb.no/api/v0/no/table/03321/",
   ArbstedKomm = list("*"),
-   # ag: Vi må ha med gamle Sveio og Etne  1211, 1216
-  Bokommuen = c("1106", "1135", "1145", "1146", "1149", "1154", 
-                "1159", "1160", "4611", "4612", "1211", "1216"),
+  Bokommuen = c("1106", "1135", "1145", "1146", "1149", "1154", "1159", "1160", "4611", "4612"),
   Tid = c(paste(
     as.character(2000:2022),
     sep = "")
@@ -135,49 +131,33 @@ pend_00_22_ssb_boHland <- pend_00_22_ssb_boHland %>%
 
 ```{r}
 pend_00_22_ssb_arbHland <- pend_00_22_ssb_arbHland |> 
-  # ag: Overskriver arb_kom med en faktor variant
-  # vi trenger ikke både en faktor variabel og den samme som
-  # ikke faktor
   mutate(
-    arb_kom = fct(arb_kom),
-    bo_kom = fct(bo_kom))
+    arb_kom_fac = fct(arb_kom),
+    bo_kom_fac = fct(bo_kom))
 ```
 
 ```{r}
 pend_00_22_ssb_boHland <- pend_00_22_ssb_boHland |> 
   mutate(
-    arb_kom = fct(arb_kom),
-    bo_kom = fct(bo_kom))
+    arb_kom_fac = fct(arb_kom),
+    bo_kom_fac = fct(bo_kom))
 ```
 
 Vi slår sammen kategoriene til Haugesund, Sauda, Bokn, Tysvær, Karmøy, Vinafjord og Ølen.
 
 ```{r}
 #collapset bokommune
-# ag: vi må også kollapse arb_kom til de 8 kom. på Haugalandet
 pend_00_22_arbHland <- pend_00_22_ssb_arbHland |> 
   mutate(
-    # ag: her skal det ikke være noen andre kategori
-    arb_kom = fct_collapse(
-      .f = arb_kom,
-      "Haugesund" = "Haugesund",
-      "Karmøy" = "Karmøy",
-      "Bokn" = "Bokn",
-      "Tysvær" = "Tysvær",
-      "Sveio" = c("Sveio", "Sveio (-2019)"),
-      "Sauda" = "Sauda",
-      "Etne" = c("Etne", "Etne (-2019)"),
-      "Vindafjord" = c("Ølen (2002-2005)", "Vindafjord", "Vindafjord (1965-2005)")    ),   
-    # ag: Her trenger vi en andre kategori
     bo_kom = fct_collapse(
-      .f = bo_kom,
+      .f = bo_kom_fac,
       "Haugesund" = "Haugesund",
       "Karmøy" = "Karmøy",
       "Bokn" = "Bokn",
       "Tysvær" = "Tysvær",
-      "Sveio" = c("Sveio", "Sveio (-2019)"),
+      "Sveio" = "Sveio",
       "Sauda" = "Sauda",
-      "Etne" = c("Etne", "Etne (-2019)"),
+      "Etne" = "Etne",
       "Vindafjord" = c("Ølen (2002-2005)", "Vindafjord", "Vindafjord (1965-2005)"),
       other_level = "Andre"
     )
@@ -188,41 +168,26 @@ pend_00_22_arbHland <- pend_00_22_ssb_arbHland |>
 #collapset arbeidskommune
 pend_00_22_boHland <- pend_00_22_ssb_boHland |> 
   mutate(
-    # ag: her skal det ikke være noen andre kategori. Overskriver bo_kom_fac
-    bo_kom = fct_collapse(
-      .f = bo_kom,
-      "Haugesund" = "Haugesund",
-      "Karmøy" = "Karmøy",
-      "Bokn" = "Bokn",
-      "Tysvær" = "Tysvær",
-      "Sveio" = c("Sveio", "Sveio (-2019)"),
-      "Sauda" = "Sauda",
-      "Etne" = c("Etne", "Etne (-2019)"),
-      "Vindafjord" = c("Ølen (2002-2005)", "Vindafjord", "Vindafjord (1965-2005)")
-    ),  
-    # ag: Her trenger vi en andre kategori. Overskriver arb_kom_fac 
     arb_kom = fct_collapse(
-      .f = arb_kom,
+      .f = arb_kom_fac,
       "Haugesund" = "Haugesund",
       "Karmøy" = "Karmøy",
       "Bokn" = "Bokn",
       "Tysvær" = "Tysvær",
-      "Sveio" = c("Sveio", "Sveio (-2019)"),
+      "Sveio" = "Sveio",
       "Sauda" = "Sauda",
-      "Etne" = c("Etne", "Etne (-2019)"),
+      "Etne" = "Etne",
       "Vindafjord" = c("Ølen (2002-2005)", "Vindafjord", "Vindafjord (1965-2005)"),
       other_level = "Andre"
     )
-  ) |> 
-  select(aar, bo_kom, arb_kom, pendlere)
+  )
 ```
 
 ```{r}
 #guperer på aar, arb_kom og bo_kom
-pend_00_22_arbHland <- pend_00_22_arbHland  |> 
-  # ag: trenger ikke filtrere
-  # filter(pend_00_22_ssb_arbHland, pendlere > 0) |> 
-  group_by(aar, bo_kom, arb_kom) |>
+pend_00_22_arbHland <- pend_00_22_arbHland %$%
+  filter(pend_00_22_ssb_arbHland, pendlere > 0) |> 
+  group_by(aar, arb_kom, bo_kom) |>
   summarise(pendlere = sum(pendlere),
     .groups = "drop")
 ```
@@ -234,9 +199,8 @@ pend_00_22_arbHland |>
 
 ```{r}
 #gruppert med aar, arb_kom og bo_kom
-pend_00_22_boHland <- pend_00_22_boHland  |> 
-  # ag: trenger ikke filtrere
-  # filter(pend_00_22_ssb_boHland, pendlere > 0) |> 
+pend_00_22_boHland <- pend_00_22_boHland %$%
+  filter(pend_00_22_ssb_boHland, pendlere > 0) |> 
   group_by(aar, arb_kom, bo_kom) |>
   summarise(pendlere = sum(pendlere),
     .groups = "drop")
@@ -253,15 +217,9 @@ dim(pend_00_22_ssb_arbHland)
 
 ```{r}
 # Nå skal vi joine begge listene
-# Endrer fra ssb variant til bearbeidet variant
-pmat_long <- pend_00_22_arbHland |>  
-  full_join(pend_00_22_boHland,
-            by = join_by(aar, bo_kom, arb_kom, pendlere)) |>
-  # endrer arb_kom og bo_kom fra faktor til character
-   mutate(
-    arb_kom = as.character(arb_kom),
-    bo_kom = as.character(bo_kom)
-  ) |>  
+pmat_long <- pend_00_22_ssb_arbHland |>  
+  full_join(pend_00_22_ssb_boHland,
+            by = join_by(aar, bo_kom, arb_kom)) |>
   ungroup()
 ```
 
@@ -271,11 +229,6 @@ pmat_long |> head(10)
 
 ```{r}
 dim(pmat_long)
-```
-
-```{r}
-#| echo: false
-# ag: Da har jeg fikset ned til hit
 ```
 
 ```{r}
