@@ -274,11 +274,6 @@ dim(pmat_long)
 ```
 
 ```{r}
-#| echo: false
-# ag: Da har jeg fikset ned til hit
-```
-
-```{r}
 # vi skal nå finne andelen av de som jobber i andre kommuner
 pmat_long <- pmat_long %>%
 group_by(bo_kom, aar) %>%
@@ -286,12 +281,79 @@ group_by(bo_kom, aar) %>%
        bo_percent = round((pendlere / total_bo_kom) * 100, 1)
        ) %>%
 ungroup() %>%
-group_by(
-  arb_kom, aar = sum(pendlere), 
+group_by(arb_kom, aar) %>%
+  mutate(total_arb_kom = sum(pendlere), 
   arb_percent = round((pendlere / total_arb_kom) * 100, 1)
   ) %>%
 ungroup() %>%
 select(-total_bo_kom, -total_arb_kom)
+```
+
+```{r}
+dim(pmat_long)
+```
+
+```{r}
+# Nå skal vi endre rekkefølge i kommune og kolonner
+ordKom <- c("bo_kom", "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vindafjord", "Sauda", "Etne", "Andre")
+```
+
+```{r}
+# pendlermatrise år 2000 for de som bor 
+p2000bo <- pmat_long |>
+  filter(aar == 2000) |>
+  select(bo_kom, arb_kom, pendlere) |>
+  pivot_wider(names_from = arb_kom, values_from = pendlere) |>
+  mutate(bo_kom = factor(bo_kom, levels = ordKom)) |>
+  arrange(bo_kom) |>
+  select("bo_kom", all_of(ordKom)) |>
+  rename("Bo kom.\\ Arb. kom." = bo_kom) |>
+```
+
+```{r}
+# her lager vi en finere matrise
+#| label: tbl-p2000
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000."
+p2000bo |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+
+```
+
+```{r}
+# pendlermatrise år 2000 for de som bor 
+p2000arb <- pmat_long |>
+  filter(aar == 2000) |>
+  select(bo_kom, arb_kom, pendlere) |>
+  pivot_wider(names_from = bo_kom, values_from = pendlere) |>
+  mutate(arb_kom = factor(arb_kom, levels = ordKom)) |>
+  arrange(arb_kom) |>
+  select("arb_kom", all_of(ordKom)) |>
+  rename("Arb kom.\\ Bo kom." = arb_kom) |>
+```
+
+```{r}
+#| label: tbl-p2000
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000."
+p2000arb |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
 ```
 
 ## Tidy
