@@ -488,6 +488,111 @@ p2022arb |>
 
 ## Oppgave
 
+## Plots
+
+```{r}
+pmat_long |> 
+  filter(arb_kom == "Haugesund") |>
+  mutate(
+    # setter 31/12 siden pendledataene er for 4. kvartal
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom.` = fct(bo_kom, levels = ordKom[!ordKom %in% c("bo_kom")])
+    ) |> 
+  ggplot(aes(x = år, 
+             y = `Bo andel`, 
+             color = `Bo kom.`,
+             linetype = `Bo kom.`,
+             group = `Bo kom.`)
+         ) +
+  geom_line(linewidth = .8) +
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom")]) +
+  guides( 
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+      ),
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+      )
+    ) +
+  theme(
+    legend.key.size = unit(2,"line"),
+    legend.position = "bottom"
+    )
+```
+
+```{r}
+pmat_long |> 
+  filter(arb_kom == "Haugesund" & !bo_kom %in% c("Haugesund", "Karmøy")) |>
+  mutate(
+    # setter 31/12 siden pendledataene er for 4. kvartal
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom.` = fct(bo_kom, levels = ordKom[!ordKom %in% c("bo_kom", "Haugesund", "Karmøy")])
+    ) |> 
+  ggplot(aes(x = år, 
+             y = `Bo andel`, 
+             color = `Bo kom.`,
+             linetype = `Bo kom.`,
+             group = `Bo kom.`)
+         ) +
+  geom_line(linewidth = .8) +
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom", "Haugesund", "Karmøy")]) +
+  guides( 
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+      ),
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+      )
+    ) +
+  theme(
+    legend.key.size = unit(2,"line"),
+    legend.position = "bottom"
+    )
+```
+
+## Oppgave
+
+Lag tilsvarende plot som det ovenfor, men for utviklingen for dem som **bor** i kommunene Haugesund, Karmøy, Tysvær og Bokn.
+
+```{r}
+pmat_long |> 
+  filter(arb_kom == "Haugesund" & !bo_kom %in% c("Sauda", "Sveio","Vindafjord", "Etne", "Andre")) |>
+  mutate(
+    # setter 31/12 siden pendledataene er for 4. kvartal
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom.` = fct(bo_kom, levels = ordKom[!ordKom %in% c("bo_kom", "Sauda", "Sveio","Vindafjord", "Etne", "Andre")])
+    ) |> 
+  ggplot(aes(x = år, 
+             y = `Bo andel`, 
+             color = `Bo kom.`,
+             linetype = `Bo kom.`,
+             group = `Bo kom.`)
+         ) +
+  geom_line(linewidth = .8) +
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom",           "Sauda", "Sveio","Vindafjord", "Etne", "Andre")]) +
+  guides( 
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+      ),
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+      )
+    ) +
+  theme(
+    legend.key.size = unit(2,"line"),
+    legend.position = "bottom"
+    )
+```
+
 ## Konklusjon
 
 ## Referanser
