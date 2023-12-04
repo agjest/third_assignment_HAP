@@ -358,6 +358,14 @@ p2000arb |>
   theme_booktabs()
 ```
 
+1.  I år 2000 var det 121 personer som bodde i Haugesund og arbeidet i Vindafjord
+2.  I år 2000 var det 0 personer som bodde i Boken og arbeidet i Sveio
+3.  I år 2000 var andelen som bodde i Kamøy og jobbet i Bokn 0,1 %
+4.  I år 2000 var andelen som bodde i Bokn og jobbet i Karmøy 4,3 %
+5.  I år 2000 var andelen som bodde i Haugesund og jobbet i Sveio 0,7 %
+6.  I år 2000 var andelen som bodde i Tysvær og jobbet i Sveio 0,4 %
+7.  I år 2000 var andelen som bodde i Vindafjord og jobbet i Haugesund 8,2 %
+
 ## Pendlermatrise år 2012
 
 ## Pendlermatrise år 2022
