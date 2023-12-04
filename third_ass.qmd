@@ -293,6 +293,8 @@ select(-total_bo_kom, -total_arb_kom)
 dim(pmat_long)
 ```
 
+## Pendlermatrise år 2000
+
 ```{r}
 # Nå skal vi endre rekkefølge i kommune og kolonner
 ordKom <- c("bo_kom", "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vindafjord", "Sauda", "Etne", "Andre")
@@ -355,6 +357,10 @@ p2000arb |>
   padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
   theme_booktabs()
 ```
+
+## Pendlermatrise år 2012
+
+## Pendlermatrise år 2022
 
 ## Tidy
 
