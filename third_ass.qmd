@@ -309,7 +309,7 @@ p2000bo <- pmat_long |>
   mutate(bo_kom = factor(bo_kom, levels = ordKom)) |>
   arrange(bo_kom) |>
   select("bo_kom", all_of(ordKom)) |>
-  rename("Bo kom.\\ Arb. kom." = bo_kom) |>
+  rename("Bo kom.\\ Arb. kom." = bo_kom)
 ```
 
 ```{r}
@@ -331,7 +331,7 @@ p2000bo |>
 ```
 
 ```{r}
-# pendlermatrise år 2000 for de som bor 
+# pendlermatrise år 2000 for de som arbeider i kommunen 
 p2000arb <- pmat_long |>
   filter(aar == 2000) |>
   select(bo_kom, arb_kom, pendlere) |>
@@ -339,7 +339,7 @@ p2000arb <- pmat_long |>
   mutate(arb_kom = factor(arb_kom, levels = ordKom)) |>
   arrange(arb_kom) |>
   select("arb_kom", all_of(ordKom)) |>
-  rename("Arb kom.\\ Bo kom." = arb_kom) |>
+  rename("Arb kom.\\ Bo kom." = arb_kom)
 ```
 
 ```{r}
@@ -358,17 +358,124 @@ p2000arb |>
   theme_booktabs()
 ```
 
-1.  I år 2000 var det 121 personer som bodde i Haugesund og arbeidet i Vindafjord
-2.  I år 2000 var det 0 personer som bodde i Boken og arbeidet i Sveio
-3.  I år 2000 var andelen som bodde i Kamøy og jobbet i Bokn 0,1 %
-4.  I år 2000 var andelen som bodde i Bokn og jobbet i Karmøy 4,3 %
-5.  I år 2000 var andelen som bodde i Haugesund og jobbet i Sveio 0,7 %
-6.  I år 2000 var andelen som bodde i Tysvær og jobbet i Sveio 0,4 %
-7.  I år 2000 var andelen som bodde i Vindafjord og jobbet i Haugesund 8,2 %
-
 ## Pendlermatrise år 2012
 
+```{r}
+# pendlermatrise år 2012 for de som bor 
+p2012bo <- pmat_long |>
+  filter(aar == 2012) |>
+  select(bo_kom, arb_kom, pendlere) |>
+  pivot_wider(names_from = arb_kom, values_from = pendlere) |>
+  mutate(bo_kom = factor(bo_kom, levels = ordKom)) |>
+  arrange(bo_kom) |>
+  select("bo_kom", all_of(ordKom)) |>
+  rename("Bo kom.\\ Arb. kom." = bo_kom)
+```
+
+```{r}
+# her lager vi en finere matrise
+#| label: tbl-p2012
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012."
+p2012bo |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+```{r}
+# pendlermatrise år 2012 for de som arbeider i kommunen 
+p2012arb <- pmat_long |>
+  filter(aar == 2012) |>
+  select(bo_kom, arb_kom, pendlere) |>
+  pivot_wider(names_from = bo_kom, values_from = pendlere) |>
+  mutate(arb_kom = factor(arb_kom, levels = ordKom)) |>
+  arrange(arb_kom) |>
+  select("arb_kom", all_of(ordKom)) |>
+  rename("Arb kom.\\ Bo kom." = arb_kom)
+```
+
+```{r}
+#| label: tbl-p2012
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012."
+p2012arb |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
 ## Pendlermatrise år 2022
+
+```{r}
+# pendlermatrise år 2022 for de som bor 
+p2022bo <- pmat_long |>
+  filter(aar == 2022) |>
+  select(bo_kom, arb_kom, pendlere) |>
+  pivot_wider(names_from = arb_kom, values_from = pendlere) |>
+  mutate(bo_kom = factor(bo_kom, levels = ordKom)) |>
+  arrange(bo_kom) |>
+  select("bo_kom", all_of(ordKom)) |>
+  rename("Bo kom.\\ Arb. kom." = bo_kom)
+```
+
+```{r}
+# her lager vi en finere matrise
+#| label: tbl-p2022
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022."
+p2022bo |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+```{r}
+# pendlermatrise år 2022 for de som arbeider i kommunen 
+p2022arb <- pmat_long |>
+  filter(aar == 2022) |>
+  select(bo_kom, arb_kom, pendlere) |>
+  pivot_wider(names_from = bo_kom, values_from = pendlere) |>
+  mutate(arb_kom = factor(arb_kom, levels = ordKom)) |>
+  arrange(arb_kom) |>
+  select("arb_kom", all_of(ordKom)) |>
+  rename("Arb kom.\\ Bo kom." = arb_kom)
+```
+
+```{r}
+# her lager vi en finere matrise
+#| label: tbl-p2022
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022."
+p2022bo |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
 
 ## Tidy
 
