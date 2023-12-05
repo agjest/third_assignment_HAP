@@ -1,5 +1,6 @@
 ---
-title: "pendling"
+title: "Pendling Haugalandet 2000 til 2022"
+author: "Håkon Alne Paulsen og Hilde Kristin Jensen"
 format: html
 editor: visual
 ---
@@ -18,27 +19,7 @@ library(magrittr)
 
 ## Intro
 
--   Henter API fra SSB
-
--   Lager pivots
-
--   Lager pendlermatrise / origin-destination
-
--   Bruk char vector, gjør om til faktor variabel, slå i sammen mangen av kategorier til breiere kategorier
-
--   Viktig teknikk:
-
--   Important technique:
-
--   Make factor of a variable.
-
--   Collapse the levels into groups we are interested in and throw the rest into an "Other" category.
-
--   Alternative to case_when()
-
-```         
-From \<<https://msb105.netlify.app/wrangle-data/factors/factors#/factors-in-tidyverse-forcats>\>
-```
+Vi skal i denne oppgaven se på pendlertall på Haugalandet fra 2000 til 2022
 
 ## SSB
 
@@ -135,9 +116,6 @@ pend_00_22_ssb_boHland <- pend_00_22_ssb_boHland %>%
 
 ```{r}
 pend_00_22_ssb_arbHland <- pend_00_22_ssb_arbHland |> 
-  # ag: Overskriver arb_kom med en faktor variant
-  # vi trenger ikke både en faktor variabel og den samme som
-  # ikke faktor
   mutate(
     arb_kom = fct(arb_kom),
     bo_kom = fct(bo_kom))
@@ -154,10 +132,8 @@ Vi slår sammen kategoriene til Haugesund, Sauda, Bokn, Tysvær, Karmøy, Vinafj
 
 ```{r}
 #collapset bokommune
-# ag: vi må også kollapse arb_kom til de 8 kom. på Haugalandet
 pend_00_22_arbHland <- pend_00_22_ssb_arbHland |> 
   mutate(
-    # ag: her skal det ikke være noen andre kategori
     arb_kom = fct_collapse(
       .f = arb_kom,
       "Haugesund" = "Haugesund",
@@ -167,8 +143,8 @@ pend_00_22_arbHland <- pend_00_22_ssb_arbHland |>
       "Sveio" = c("Sveio", "Sveio (-2019)"),
       "Sauda" = "Sauda",
       "Etne" = c("Etne", "Etne (-2019)"),
-      "Vindafjord" = c("Ølen (2002-2005)", "Vindafjord", "Vindafjord (1965-2005)")    ),   
-    # ag: Her trenger vi en andre kategori
+      "Vindafjord" = c("Ølen (2002-2005)", "Vindafjord", "Vindafjord (1965-2005)")    
+      ),  
     bo_kom = fct_collapse(
       .f = bo_kom,
       "Haugesund" = "Haugesund",
@@ -188,7 +164,6 @@ pend_00_22_arbHland <- pend_00_22_ssb_arbHland |>
 #collapset arbeidskommune
 pend_00_22_boHland <- pend_00_22_ssb_boHland |> 
   mutate(
-    # ag: her skal det ikke være noen andre kategori. Overskriver bo_kom_fac
     bo_kom = fct_collapse(
       .f = bo_kom,
       "Haugesund" = "Haugesund",
@@ -200,7 +175,6 @@ pend_00_22_boHland <- pend_00_22_ssb_boHland |>
       "Etne" = c("Etne", "Etne (-2019)"),
       "Vindafjord" = c("Ølen (2002-2005)", "Vindafjord", "Vindafjord (1965-2005)")
     ),  
-    # ag: Her trenger vi en andre kategori. Overskriver arb_kom_fac 
     arb_kom = fct_collapse(
       .f = arb_kom,
       "Haugesund" = "Haugesund",
@@ -220,8 +194,6 @@ pend_00_22_boHland <- pend_00_22_ssb_boHland |>
 ```{r}
 #guperer på aar, arb_kom og bo_kom
 pend_00_22_arbHland <- pend_00_22_arbHland  |> 
-  # ag: trenger ikke filtrere
-  # filter(pend_00_22_ssb_arbHland, pendlere > 0) |> 
   group_by(aar, bo_kom, arb_kom) |>
   summarise(pendlere = sum(pendlere),
     .groups = "drop")
@@ -235,8 +207,6 @@ pend_00_22_arbHland |>
 ```{r}
 #gruppert med aar, arb_kom og bo_kom
 pend_00_22_boHland <- pend_00_22_boHland  |> 
-  # ag: trenger ikke filtrere
-  # filter(pend_00_22_ssb_boHland, pendlere > 0) |> 
   group_by(aar, arb_kom, bo_kom) |>
   summarise(pendlere = sum(pendlere),
     .groups = "drop")
@@ -253,11 +223,9 @@ dim(pend_00_22_ssb_arbHland)
 
 ```{r}
 # Nå skal vi joine begge listene
-# Endrer fra ssb variant til bearbeidet variant
 pmat_long <- pend_00_22_arbHland |>  
   full_join(pend_00_22_boHland,
             by = join_by(aar, bo_kom, arb_kom, pendlere)) |>
-  # endrer arb_kom og bo_kom fra faktor til character
    mutate(
     arb_kom = as.character(arb_kom),
     bo_kom = as.character(bo_kom)
@@ -363,6 +331,34 @@ p2000arb |>
   theme_booktabs()
 ```
 
+1.  Hvor mange pendlet fra Haugesund til Vindafjord?
+
+    121
+
+2.  Hvor mange pendlet fra Bokn til Sveio?
+
+    0
+
+3.  Hvor stor andel av arbeidstakerene som bodde i Karmøy kommune i 2000 jobbet i Bokn kommune?
+
+    0,1 %
+
+4.  Hvor stor andel av arbeidstakerene som bodde i Bokn kommune i 2000 jobbet i Karmøy kommune?
+
+    3,7 %
+
+5.  Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Haugesund kommune?
+
+    8,6 %
+
+6.  Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Tysvær kommune?
+
+    1,7 %
+
+7.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2000 bodde i Vindafjord kommune?
+
+    1,7 %
+
 ## Pendlermatrise år 2012
 
 ```{r}
@@ -421,6 +417,46 @@ p2012arb |>
   padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
   theme_booktabs()
 ```
+
+1.  Hvor mange pendlet fra Tysvær til Karmøy?
+
+    421
+
+2.  Hvor mange pendlet fra Karmøy til Tysvær?
+
+    569
+
+3.  Hvor mange pendlet fra Bokn til Karmøy?
+
+    11
+
+4.  Hvor mange pendlet fra Karmøy til Bokn?
+
+    30
+
+5.  Hvor mange pendlet fra Haugesund til Karmøy?
+
+    2077
+
+6.  Hvor mange pendlet fra Karmøy til Haugesund?
+
+    5201
+
+7.  Hvor stor andel av arbeidstakerene som bodde i Sveio kommune i 2012 jobbet i Tysvær kommune?
+
+    4,7 %
+
+8.  Hvor stor andel av arbeidstakerene som bodde i Tysvær kommune i 2012 jobbet i Karmøy kommune?
+
+    7,7 %
+
+9.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2012 bodde i Haugesund kommune?
+
+    13,9 %
+
+10. Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2012 bodde i Karmøy kommune?
+
+    23,7 %
 
 ## Pendlermatrise år 2022
 
@@ -482,11 +518,37 @@ p2022arb |>
   theme_booktabs()
 ```
 
-## Tidy
+1.  Hvor mange pendlet fra Tysvær til Karmøy?
 
-## Spørsmål
+    657
 
-## Oppgave
+2.  Hvor mange pendlet fra Karmøy til Tysvær?
+
+    769
+
+3.  Hvor mange pendlet fra Bokn til Karmøy?
+
+    45
+
+4.  Hvor mange pendlet fra Karmøy til Bokn?
+
+    24
+
+5.  Hvor mange pendlet fra Haugesund til Karmøy?
+
+    2541
+
+6.  Hvor mange pendlet fra Karmøy til Haugesund?
+
+    5190
+
+7.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2022 bodde i Haugesund kommune?
+
+    15,8 %
+
+8.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy kommune?
+
+    23,2 %
 
 ## Plots
 
@@ -576,7 +638,7 @@ pmat_long |>
              group = `Bo kom.`)
          ) +
   geom_line(linewidth = .8) +
-  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom",           "Sauda", "Sveio","Vindafjord", "Etne", "Andre")]) +
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom", "Sauda", "Sveio","Vindafjord", "Etne", "Andre")]) +
   guides( 
     colour = guide_legend(
       title = "Bo andel",
@@ -595,4 +657,4 @@ pmat_long |>
 
 ## Konklusjon
 
-## Referanser
+I 2013 åpnet det såkalte T-sambandet mellom Haugesund, Karmøy og Tysvær. Ut i fra plottet kan vi ikke se at denne tunellen har hatt en innvirkning på pendlertallene. I år 2021 var det også slutt på bompenger i denne tunnelen, men det har heller ikke denne gangen hatt en invirkning på pendlertallene.
