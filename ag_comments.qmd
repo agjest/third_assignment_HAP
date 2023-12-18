@@ -1,0 +1,21 @@
+---
+title: "ag comments"
+format: 
+  html: default
+  pdf: default
+editor: visual
+---
+
+-   Jeg har insett at det er smartere å angi antall desimaler når vi genererer tabellene.
+    Har derfor tatt bort round() fra utregningen av bo_percent og arb_percent.
+    Se bruk av colformat_double() under generering av flextable.
+
+-   Alle svarene på spørsmålene er rett så jeg antar at dere har regnet dem ut fra pendle-matrisene.
+
+-   Jeg har lagt inn kode som genererer tabeller for bo_percent og arb_percent for årene 2000, 2012 og 2022.
+    Da kan en lese svarene på spørsmålene direkte ut fra tabellene.
+
+-   Tabellene for bo_percent og arb_percent er litt «tricky».
+    Det er lett å trø feil så ta en titt på koden.
+
+-   Godkjent.

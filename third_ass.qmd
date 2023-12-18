@@ -246,12 +246,20 @@ dim(pmat_long)
 pmat_long <- pmat_long %>%
 group_by(bo_kom, aar) %>%
   mutate(total_bo_kom = sum(pendlere),
-       bo_percent = round((pendlere / total_bo_kom) * 100, 1)
+      # ag_comment: Det er lurere å angi antall desimaler når vi
+      # genererer tabellene. Se kode (colformat_double()) under generering 
+      # av tabellene
+      # bo_percent = round((pendlere / total_bo_kom) * 100, 1)
+      bo_percent = (pendlere / total_bo_kom) * 100
        ) %>%
 ungroup() %>%
 group_by(arb_kom, aar) %>%
   mutate(total_arb_kom = sum(pendlere), 
-  arb_percent = round((pendlere / total_arb_kom) * 100, 1)
+      # ag_comment: Det er lurere å angi antall desimaler når vi
+      # genererer tabellene. Se kode (colformat_double()) under generering 
+      # av tabellene         
+      # arb_percent = round((pendlere / total_arb_kom) * 100, 1)
+      arb_percent = (pendlere / total_arb_kom) * 100
   ) %>%
 ungroup() %>%
 select(-total_bo_kom, -total_arb_kom)
@@ -269,67 +277,91 @@ ordKom <- c("bo_kom", "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vinda
 ```
 
 ```{r}
+# ag_comment: flextable har mulighet til å definere defaults vha. set_flextable_default().
+# Bruker vi dette slipper vi en del skrivearbeid og får alle tabeller over samme lest
+set_flextable_defaults(
+     decimal.mark = ",",
+     big.mark = " ",
+     digits = 2,
+     line_spacing = 1,
+     padding.bottom = 2,
+     padding.top = 2,
+     padding.left = 2,
+     padding.right = 2,
+     theme_fun = "theme_booktabs"
+)
+```
+
+```{r}
+#| label: tbl-p2000
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000."
 # pendlermatrise år 2000 for de som bor 
-p2000bo <- pmat_long |>
+# ag_comment: Jeg vil forslå å slå sammen denne og neste chunk
+# reduserer da antall objekter som blir generert og det blir lettere å holde oversikt
+pmat_long |>
   filter(aar == 2000) |>
   select(bo_kom, arb_kom, pendlere) |>
   pivot_wider(names_from = arb_kom, values_from = pendlere) |>
   mutate(bo_kom = factor(bo_kom, levels = ordKom)) |>
   arrange(bo_kom) |>
   select("bo_kom", all_of(ordKom)) |>
-  rename("Bo kom.\\ Arb. kom." = bo_kom)
-```
-
-```{r}
-# her lager vi en finere matrise
-#| label: tbl-p2000
-#| tbl-cap: "Pendlematrise for Haugalandet år 2000."
-p2000bo |> 
+  rename("Bo kom.\\ Arb. kom." = bo_kom) |> 
   flextable() |> 
   # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
   fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
-  line_spacing(space = 0,
-              part = "body"
-              ) %>% 
   hrule(rule = "exact")  %>% 
-  height_all(height = 5, part = "all", unit = "mm") |> 
-  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
-  theme_booktabs()
+  height_all(height = 5, part = "all", unit = "mm") 
+```
 
+Tok bort 3 chunks som så ut til å være samme pendlematrise.
+Den ene hadde samme label som pendlematrisen ovenfor.
+Dette gir en YAML feil om label duplikater.
+Vi trenger tabeller for bo_percent og arb_percent.
+Lagt inn kode for disse.
+
+```{r}
+#| label: tbl-p2000_bo_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000 som angir prosentandel av dem som *bor* i en gitt kommune på Haugalandet som *jobber* i de ulike kommunene. Merk at bare rekkene i denne tabellen har en tolkning." 
+pmat_long |>
+     filter(aar == 2000) |>
+     select(bo_kom, arb_kom, bo_percent) |>
+     pivot_wider(
+       names_from = arb_kom,
+       values_from = bo_percent
+     ) |>
+     arrange(fct(bo_kom, levels = ordKom[-1])) %>%
+     select(all_of(ordKom)) |>
+     rename("bo kom. \\ arb. kom." = bo_kom) |>
+     flextable() |>
+     colformat_double(digits = 2, suffix = "%") |>
+     # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+     fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |>
+     hrule(rule = "exact")  %>%
+     height_all(height = 5, part = "all", unit = "mm")
 ```
 
 ```{r}
-# Nå skal vi endre rekkefølge i kommune og kolonner
-ordKom2 <- c("arb_kom", "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vindafjord", "Sauda", "Etne", "Andre")
+#| label: tbl-p2000_arb_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000 som angir prosentandel av dem som *jobber* i en gitt kommune på Haugalandet som *bor* i de ulike kommunene på Haugalandet. Merk at bare rekkene i denne tabellen har en tolkning."
+pmat_long |>
+     filter(aar == 2000) |>
+     select(bo_kom, arb_kom, arb_percent) |>
+     pivot_wider(
+       names_from = bo_kom,
+       values_from = arb_percent
+     ) |>
+     arrange(fct(arb_kom, levels = c("arb_kom", ordKom[-1]))) %>%
+     select(all_of(c("arb_kom", ordKom[-1]))) |>
+     rename("arb. kom. \\ bo kom." = arb_kom) |>
+     flextable() |>
+     colformat_double(digits = 2, suffix = "%") |>
+     # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+     fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |>
+     hrule(rule = "exact")  %>%
+     height_all(height = 5, part = "all", unit = "mm")
 ```
 
-```{r}
-# pendlermatrise år 2000 for de som arbeider i kommunen 
-p2000arb <- pmat_long |>
-  filter(aar == 2000) |>
-  select(bo_kom, arb_kom, pendlere) |>
-  pivot_wider(names_from = bo_kom, values_from = pendlere) |>
-  mutate(arb_kom = factor(arb_kom, levels = ordKom2)) |>
-  arrange(arb_kom) |>
-  select("arb_kom", all_of(ordKom2)) |>
-  rename("Arb kom.\\ Bo kom." = arb_kom)
-```
-
-```{r}
-#| label: tbl-p2000
-#| tbl-cap: "Pendlematrise for Haugalandet år 2000."
-p2000arb |> 
-  flextable() |> 
-  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
-  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
-  line_spacing(space = 0,
-              part = "body"
-              ) %>% 
-  hrule(rule = "exact")  %>% 
-  height_all(height = 5, part = "all", unit = "mm") |> 
-  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
-  theme_booktabs()
-```
+ag_comment: Svarene på spørsmålene kan nå leses rett ut av de tre tabellene @tbl-p2000_arb_percent, @tbl-p2000_bo_percent og @tbl-p2000_arb_percent.
 
 1.  Hvor mange pendlet fra Haugesund til Vindafjord?
 
@@ -362,61 +394,72 @@ p2000arb |>
 ## Pendlermatrise år 2012
 
 ```{r}
+#| label: tbl-p2012
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012."
 # pendlermatrise år 2012 for de som bor 
-p2012bo <- pmat_long |>
+# ag_comment: igjen foreslår jeg å lage pendlematrisen «on-the-fly» ut fra pmat_long
+pmat_long |>
   filter(aar == 2012) |>
   select(bo_kom, arb_kom, pendlere) |>
   pivot_wider(names_from = arb_kom, values_from = pendlere) |>
   mutate(bo_kom = factor(bo_kom, levels = ordKom)) |>
   arrange(bo_kom) |>
   select("bo_kom", all_of(ordKom)) |>
-  rename("Bo kom.\\ Arb. kom." = bo_kom)
-```
-
-```{r}
-# her lager vi en finere matrise
-#| label: tbl-p2012
-#| tbl-cap: "Pendlematrise for Haugalandet år 2012."
-p2012bo |> 
+  rename("Bo kom.\\ Arb. kom." = bo_kom) |> 
   flextable() |> 
   # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
   fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
-  line_spacing(space = 0,
-              part = "body"
-              ) %>% 
   hrule(rule = "exact")  %>% 
-  height_all(height = 5, part = "all", unit = "mm") |> 
-  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
-  theme_booktabs()
+  height_all(height = 5, part = "all", unit = "mm") 
+```
+
+ag_comment: Lager tabell over bo_percent og arb_percent etter samme lest som for 2000.
+
+```{r}
+#| label: tbl-p2012_bo_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012 som angir prosentandel av dem som *bor* i en gitt kommune på Haugalandet som *jobber* i de ulike kommunene. Merk at bare rekkene i denne tabellen har en tolkning." 
+# ag_comment: Ser at vi trenger bare endre 2000 til 2012 så har vi tabellen
+pmat_long |>
+     filter(aar == 2012) |>
+     select(bo_kom, arb_kom, bo_percent) |>
+     pivot_wider(
+       names_from = arb_kom,
+       values_from = bo_percent
+     ) |>
+     arrange(fct(bo_kom, levels = ordKom[-1])) %>%
+     select(all_of(ordKom)) |>
+     rename("bo kom. \\ arb. kom." = bo_kom) |>
+     flextable() |>
+     colformat_double(digits = 2, suffix = "%") |>
+     # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+     fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |>
+     hrule(rule = "exact")  %>%
+     height_all(height = 5, part = "all", unit = "mm")
 ```
 
 ```{r}
-# pendlermatrise år 2012 for de som arbeider i kommunen 
-p2012arb <- pmat_long |>
-  filter(aar == 2012) |>
-  select(bo_kom, arb_kom, pendlere) |>
-  pivot_wider(names_from = bo_kom, values_from = pendlere) |>
-  mutate(arb_kom = factor(arb_kom, levels = ordKom2)) |>
-  arrange(arb_kom) |>
-  select("arb_kom", all_of(ordKom2)) |>
-  rename("Arb kom.\\ Bo kom." = arb_kom)
+#| label: tbl-p2012_arb_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012 som angir prosentandel av dem som *jobber* i en gitt kommune på Haugalandet som *bor* i de ulike kommunene på Haugalandet. Merk at bare rekkene i denne tabellen har en tolkning."
+# ag_comment: Ser at vi trenger bare endre 2000 til 2012 så har vi tabellen
+pmat_long |>
+     filter(aar == 2012) |>
+     select(bo_kom, arb_kom, arb_percent) |>
+     pivot_wider(
+       names_from = bo_kom,
+       values_from = arb_percent
+     ) |>
+     arrange(fct(arb_kom, levels = c("arb_kom", ordKom[-1]))) %>%
+     select(all_of(c("arb_kom", ordKom[-1]))) |>
+     rename("arb. kom. \\ bo kom." = arb_kom) |>
+     flextable() |>
+     colformat_double(digits = 2, suffix = "%") |>
+     # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+     fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |>
+     hrule(rule = "exact")  %>%
+     height_all(height = 5, part = "all", unit = "mm")
 ```
 
-```{r}
-#| label: tbl-p2012
-#| tbl-cap: "Pendlematrise for Haugalandet år 2012."
-p2012arb |> 
-  flextable() |> 
-  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
-  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
-  line_spacing(space = 0,
-              part = "body"
-              ) %>% 
-  hrule(rule = "exact")  %>% 
-  height_all(height = 5, part = "all", unit = "mm") |> 
-  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
-  theme_booktabs()
-```
+ag_comment: Alle svarene kan nå leses ut fra tabellene @tbl-p2012, @tbl-p2012_bo_percent og @tbl-p2012_arb_percent.
 
 1.  Hvor mange pendlet fra Tysvær til Karmøy?
 
@@ -461,22 +504,18 @@ p2012arb |>
 ## Pendlermatrise år 2022
 
 ```{r}
+#| label: tbl-p2022
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022."
 # pendlermatrise år 2022 for de som bor 
-p2022bo <- pmat_long |>
+# ag_comment: endret til «on-the-fly» tabell
+pmat_long |>
   filter(aar == 2022) |>
   select(bo_kom, arb_kom, pendlere) |>
   pivot_wider(names_from = arb_kom, values_from = pendlere) |>
   mutate(bo_kom = factor(bo_kom, levels = ordKom)) |>
   arrange(bo_kom) |>
   select("bo_kom", all_of(ordKom)) |>
-  rename("Bo kom.\\ Arb. kom." = bo_kom)
-```
-
-```{r}
-# her lager vi en finere matrise
-#| label: tbl-p2022
-#| tbl-cap: "Pendlematrise for Haugalandet år 2022."
-p2022bo |> 
+  rename("Bo kom.\\ Arb. kom." = bo_kom) |> 
   flextable() |> 
   # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
   fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
@@ -489,34 +528,53 @@ p2022bo |>
   theme_booktabs()
 ```
 
+Tabeller for bo_percent og arb_percent 2022.
+
 ```{r}
-# pendlermatrise år 2022 for de som arbeider i kommunen 
-p2022arb <- pmat_long |>
-  filter(aar == 2022) |>
-  select(bo_kom, arb_kom, pendlere) |>
-  pivot_wider(names_from = bo_kom, values_from = pendlere) |>
-  mutate(arb_kom = factor(arb_kom, levels = ordKom2)) |>
-  arrange(arb_kom) |>
-  select("arb_kom", all_of(ordKom2)) |>
-  rename("Arb kom.\\ Bo kom." = arb_kom)
+#| label: tbl-p2022_bo_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022 som angir prosentandel av dem som *bor* i en gitt kommune på Haugalandet som *jobber* i de ulike kommunene. Merk at bare rekkene i denne tabellen har en tolkning." 
+# ag_comment: Ser at vi trenger bare endre 2012 til 2022 så har vi tabellen
+pmat_long |>
+     filter(aar == 2022) |>
+     select(bo_kom, arb_kom, bo_percent) |>
+     pivot_wider(
+       names_from = arb_kom,
+       values_from = bo_percent
+     ) |>
+     arrange(fct(bo_kom, levels = ordKom[-1])) %>%
+     select(all_of(ordKom)) |>
+     rename("bo kom. \\ arb. kom." = bo_kom) |>
+     flextable() |>
+     colformat_double(digits = 2, suffix = "%") |>
+     # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+     fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |>
+     hrule(rule = "exact")  %>%
+     height_all(height = 5, part = "all", unit = "mm")
 ```
 
 ```{r}
-# her lager vi en finere matrise
-#| label: tbl-p2022
-#| tbl-cap: "Pendlematrise for Haugalandet år 2022."
-p2022arb |> 
-  flextable() |> 
-  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
-  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
-  line_spacing(space = 0,
-              part = "body"
-              ) %>% 
-  hrule(rule = "exact")  %>% 
-  height_all(height = 5, part = "all", unit = "mm") |> 
-  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
-  theme_booktabs()
+#| label: tbl-p2022_arb_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022 som angir prosentandel av dem som *jobber* i en gitt kommune på Haugalandet som *bor* i de ulike kommunene på Haugalandet. Merk at bare rekkene i denne tabellen har en tolkning."
+# ag_comment: Ser at vi trenger bare endre 2012 til 2022 så har vi tabellen
+pmat_long |>
+     filter(aar == 2022) |>
+     select(bo_kom, arb_kom, arb_percent) |>
+     pivot_wider(
+       names_from = bo_kom,
+       values_from = arb_percent
+     ) |>
+     arrange(fct(arb_kom, levels = c("arb_kom", ordKom[-1]))) %>%
+     select(all_of(c("arb_kom", ordKom[-1]))) |>
+     rename("arb. kom. \\ bo kom." = arb_kom) |>
+     flextable() |>
+     colformat_double(digits = 2, suffix = "%") |>
+     # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+     fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |>
+     hrule(rule = "exact")  %>%
+     height_all(height = 5, part = "all", unit = "mm")
 ```
+
+ag_comment: Alle svarene kan nå leses ut av tabellene @tbl-p2022, @tbl-p2022_bo_percent og @tbl-p2022_arb_percent.
 
 1.  Hvor mange pendlet fra Tysvær til Karmøy?
 
@@ -657,4 +715,6 @@ pmat_long |>
 
 ## Konklusjon
 
-I 2013 åpnet det såkalte T-sambandet mellom Haugesund, Karmøy og Tysvær. Ut i fra plottet kan vi ikke se at denne tunellen har hatt en innvirkning på pendlertallene. I år 2021 var det også slutt på bompenger i denne tunnelen, men det har heller ikke denne gangen hatt en invirkning på pendlertallene.
+I 2013 åpnet det såkalte T-sambandet mellom Haugesund, Karmøy og Tysvær.
+Ut i fra plottet kan vi ikke se at denne tunellen har hatt en innvirkning på pendlertallene.
+I år 2021 var det også slutt på bompenger i denne tunnelen, men det har heller ikke denne gangen hatt en invirkning på pendlertallene.
